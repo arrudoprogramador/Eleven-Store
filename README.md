@@ -1,7 +1,7 @@
 # Eleven Store
 
 <p align="center">
-  <img src="./assets/readme/banner.png" alt="Eleven Store Banner">
+  <img src="./assets/img/readme/banner.png" alt="Eleven Store Banner">
 </p>
 
 <p align="center">
