@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eleven Store — Camisetas de Time</title>
+  <meta name="description" content="Os melhores uniformes e camisetas de time você encontra na Eleven Store. Peça pelo WhatsApp!" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand:  '#25D366',
+            accent: '#128C7E',
+            dark:   '#0a0a0a',
+          },
+          fontFamily: {
+            display: ['Bebas Neue', 'Impact', 'sans-serif'],
+            body:    ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    }
+  </script>
+
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- CSS customizado (apenas o que Tailwind não cobre) -->
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body class="bg-[#0a0a0a] text-[#f5f5f0] font-['Inter',system-ui,sans-serif] overflow-x-hidden">
+
+  <!-- ── CART OVERLAY ── -->
+  <div id="cart-overlay"
+       onclick="closeCart()"
+       class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99] opacity-0 pointer-events-none transition-opacity duration-300">
+  </div>
+
+  <!-- ── CART DRAWER ── -->
+  <div id="cart-drawer"
+       role="dialog"
+       aria-label="Carrinho de compras"
+       class="fixed right-0 top-0 h-screen w-[min(380px,100vw)] bg-[#111] border-l border-white/[0.08] translate-x-full transition-transform duration-300 ease-in-out z-[100] flex flex-col">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between p-5 border-b border-white/10">
+      <div>
+        <p class="text-xs tracking-widest text-brand uppercase font-semibold mb-0.5">Eleven Store</p>
+        <h2 class="font-['Bebas_Neue',Impact,sans-serif] text-2xl text-white">Meu Pedido</h2>
+      </div>
+      <button onclick="closeCart()"
+              class="w-9 h-9 rounded-full border border-white/15 flex items-center justify-center text-gray-400 hover:text-white hover:border-white/40 transition-colors text-xl"
+              aria-label="Fechar carrinho">&times;</button>
+    </div>
+
+    <!-- Items -->
+    <div id="cart-items" class="flex-1 overflow-y-auto p-5 space-y-3">
+      <div id="cart-empty" class="text-center py-16 text-gray-500">
+        <svg class="mx-auto mb-4 opacity-30" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+        </svg>
+        <p class="text-sm">Nenhum produto selecionado</p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="p-5 border-t border-white/10 space-y-3">
+      <div class="flex justify-between text-sm text-gray-400">
+        <span>Subtotal</span>
+        <span id="cart-subtotal" class="font-semibold text-white">R$ 0,00</span>
+      </div>
+      <p class="text-xs text-gray-600">Frete e condições combinados pelo WhatsApp.</p>
+      <button onclick="sendToWhatsApp()"
+              class="w-full flex items-center justify-center gap-2 bg-brand text-black font-bold text-base py-3 rounded-full hover:bg-[#20c55e] active:scale-95 transition-all">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+        Pedir pelo WhatsApp
+      </button>
+      <button onclick="clearCart()"
+              class="w-full text-center text-xs text-gray-600 hover:text-gray-400 transition-colors py-1">
+        Limpar carrinho
+      </button>
+    </div>
+  </div>
+
+  <!-- ── NAVBAR ── -->
+  <header id="navbar"
+          class="fixed top-0 left-0 right-0 z-50 border-b border-transparent transition-all duration-300">
+    <nav class="max-w-7xl mx-auto px-5 h-16 flex items-center justify-between">
+
+      <!-- Logo -->
+      <a href="#" class="flex items-center gap-2 no-underline">
+        <span class="font-['Bebas_Neue',Impact,sans-serif] text-2xl tracking-wider text-white">
+          ELEVEN<span class="text-brand">.</span>
+        </span>
+      </a>
+
+      <!-- Links desktop -->
+      <ul class="hidden md:flex items-center gap-8 list-none m-0 p-0">
+        <li><a href="#catalogo"  class="text-sm font-medium text-gray-400 hover:text-white transition-colors no-underline">Catálogo</a></li>
+        <li><a href="#destaques" class="text-sm font-medium text-gray-400 hover:text-white transition-colors no-underline">Destaques</a></li>
+        <li><a href="#sobre"     class="text-sm font-medium text-gray-400 hover:text-white transition-colors no-underline">Quem somos</a></li>
+      </ul>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-3">
+        <!-- Carrinho -->
+        <button onclick="openCart()"
+                class="relative w-10 h-10 flex items-center justify-center rounded-full border border-white/15 text-gray-300 hover:text-white hover:border-white/35 transition-colors"
+                aria-label="Abrir carrinho">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+          </svg>
+          <span id="cart-badge"
+                class="hidden absolute -top-1 -right-1 w-5 h-5 bg-brand text-black text-[10px] font-bold rounded-full items-center justify-center">0</span>
+        </button>
+        <!-- WA button desktop -->
+        <a href="https://wa.me/5511999999999" target="_blank"
+           class="hidden sm:inline-flex items-center gap-2 bg-brand text-black font-bold text-sm px-4 py-2 rounded-full hover:bg-[#20c55e] transition-colors">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+          Fale conosco
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- ── HERO ── -->
+  <section id="hero-section"
+           class="hero-bg min-h-svh flex items-end pb-20 pt-32">
+    <div class="max-w-7xl mx-auto px-5 w-full">
+      <div class="max-w-2xl hero-animate">
+        <span class="inline-block font-['Bebas_Neue',Impact,sans-serif] tracking-[.12em] text-xs px-3 py-1 border border-brand/40 text-brand rounded-full mb-5">
+          Nova Coleção 2025
+        </span>
+        <h1 class="font-['Bebas_Neue',Impact,sans-serif] text-[clamp(3.5rem,10vw,8rem)] leading-[.95] text-white mb-6">
+          VESTE A<br/>
+          <span class="text-brand">PAIXÃO</span><br/>
+          DO TIME
+        </h1>
+        <p class="text-gray-400 text-base leading-relaxed mb-8 max-w-md">
+          Camisetas linha premium dos maiores clubes. Qualidade e entrega rápida direto no seu WhatsApp.
+        </p>
+        <div class="flex flex-wrap gap-3">
+          <a href="#catalogo"
+             class="inline-flex items-center gap-2 bg-brand text-black font-bold text-base px-7 py-3 rounded-full hover:bg-[#20c55e] active:scale-95 transition-all">
+            Ver catálogo
+          </a>
+          <a href="#sobre"
+             class="inline-flex items-center gap-2 bg-transparent text-brand font-bold text-base px-7 py-3 rounded-full border-2 border-brand hover:bg-brand hover:text-black transition-all">
+            Saiba mais
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── STATS BAR ── -->
+  <div class="border-y border-white/[0.06] bg-[#0d0d0d]">
+    <div class="max-w-7xl mx-auto px-5 py-10 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+      <div class="reveal">
+        <div class="font-['Bebas_Neue',Impact,sans-serif] text-[2.25rem] leading-none text-brand">20+</div>
+        <div class="text-xs text-gray-500 uppercase tracking-widest mt-1">Modelos</div>
+      </div>
+      <div class="reveal">
+        <div class="font-['Bebas_Neue',Impact,sans-serif] text-[2.25rem] leading-none text-brand">40+</div>
+        <div class="text-xs text-gray-500 uppercase tracking-widest mt-1">Clientes</div>
+      </div>
+      <div class="reveal">
+        <div class="font-['Bebas_Neue',Impact,sans-serif] text-[2.25rem] leading-none text-brand">48h</div>
+        <div class="text-xs text-gray-500 uppercase tracking-widest mt-1">Entrega</div>
+      </div>
+      <div class="reveal">
+        <div class="font-['Bebas_Neue',Impact,sans-serif] text-[2.25rem] leading-none text-brand">5★</div>
+        <div class="text-xs text-gray-500 uppercase tracking-widest mt-1">Avaliações</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DESTAQUES ── -->
+  <section id="destaques" class="py-24">
+    <div class="max-w-7xl mx-auto px-5">
+      <div class="mb-12 reveal">
+        <p class="font-['Bebas_Neue',Impact,sans-serif] tracking-[.18em] text-[.7rem] text-brand uppercase mb-2">Mais vendidos</p>
+        <h2 class="font-['Bebas_Neue',Impact,sans-serif] text-[clamp(2rem,5vw,3.5rem)] leading-none text-white">
+          DESTAQUES<br/>DA SEMANA
+        </h2>
+      </div>
+      <div id="destaques-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- via render.js -->
+      </div>
+    </div>
+  </section>
+
+  <hr class="border-none h-px bg-white/[0.06]" />
+
+  <!-- ── CATÁLOGO ── -->
+  <section id="catalogo" class="py-24">
+    <div class="max-w-7xl mx-auto px-5">
+
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10 reveal">
+        <div>
+          <p class="font-['Bebas_Neue',Impact,sans-serif] tracking-[.18em] text-[.7rem] text-brand uppercase mb-2">Produtos</p>
+          <h2 class="font-['Bebas_Neue',Impact,sans-serif] text-[clamp(2rem,5vw,3.5rem)] leading-none text-white">
+            CATÁLOGO<br/>COMPLETO
+          </h2>
+        </div>
+        <!-- Filtros — preenchidos via filters.js -->
+        <div id="filtros" class="flex flex-wrap gap-2"></div>
+      </div>
+
+      <div id="produtos-grid"
+           class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        <!-- via render.js -->
+      </div>
+
+      <div class="text-center mt-14 reveal">
+        <a href="https://wa.me/5511999999999?text=Olá!%20Gostaria%20de%20ver%20mais%20produtos."
+           target="_blank"
+           class="inline-flex items-center gap-2 bg-transparent text-brand font-bold text-sm px-8 py-3 rounded-full border-2 border-brand hover:bg-brand hover:text-black transition-all">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+          Ver mais no WhatsApp
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <hr class="border-none h-px bg-white/[0.06]" />
+
+  <!-- ── QUEM SOMOS ── -->
+  <section id="sobre" class="py-24">
+    <div class="max-w-7xl mx-auto px-5">
+      <div class="grid md:grid-cols-2 gap-16 items-center">
+
+        <div class="reveal">
+          <p class="font-['Bebas_Neue',Impact,sans-serif] tracking-[.18em] text-[.7rem] text-brand uppercase mb-2">Nossa história</p>
+          <h2 class="font-['Bebas_Neue',Impact,sans-serif] text-[clamp(2rem,5vw,3.5rem)] leading-none text-white mb-6">
+            SOMOS A<br/>ELEVEN<span class="text-brand">.</span>
+          </h2>
+          <p class="text-gray-400 leading-relaxed mb-4">
+            Nascemos da paixão pelo futebol e pela cultura dos clubes. Desde 2019 oferecemos camisetas de time com qualidade premium, entrega rápida e atendimento personalizado.
+          </p>
+          <p class="text-gray-400 leading-relaxed mb-8">
+            Acreditamos que vestir a camisa do seu time é muito mais do que moda — é identidade, é pertencimento, é história.
+          </p>
+          <a href="https://wa.me/5511999999999?text=Olá!%20Quero%20saber%20mais%20sobre%20a%20Eleven%20Store."
+             target="_blank"
+             class="inline-flex items-center gap-2 bg-brand text-black font-bold px-6 py-3 rounded-full hover:bg-[#20c55e] transition-colors">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+            Conversar com a equipe
+          </a>
+        </div>
+
+        <!-- Diferenciais -->
+        <div class="grid gap-4 reveal">
+
+          <div class="bg-[#111] border border-white/[0.07] rounded-2xl p-5 flex gap-4 items-start hover:-translate-y-1 hover:border-brand/30 transition-all duration-300">
+            <div class="w-10 h-10 rounded-xl bg-brand/15 flex items-center justify-center shrink-0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2"><path d="M5 12l5 5 9-9"/></svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-white text-sm mb-1">Qualidade garantida</h3>
+              <p class="text-gray-500 text-sm leading-relaxed">Produtos selecionados com rigoroso controle de qualidade.</p>
+            </div>
+          </div>
+
+          <div class="bg-[#111] border border-white/[0.07] rounded-2xl p-5 flex gap-4 items-start hover:-translate-y-1 hover:border-brand/30 transition-all duration-300">
+            <div class="w-10 h-10 rounded-xl bg-brand/15 flex items-center justify-center shrink-0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-white text-sm mb-1">Entrega rápida</h3>
+              <p class="text-gray-500 text-sm leading-relaxed">Enviamos em até 48h após a confirmação do pedido.</p>
+            </div>
+          </div>
+
+          <div class="bg-[#111] border border-white/[0.07] rounded-2xl p-5 flex gap-4 items-start hover:-translate-y-1 hover:border-brand/30 transition-all duration-300">
+            <div class="w-10 h-10 rounded-xl bg-brand/15 flex items-center justify-center shrink-0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <div>
+              <h3 class="font-semibold text-white text-sm mb-1">Atendimento personalizado</h3>
+              <p class="text-gray-500 text-sm leading-relaxed">Suporte humano direto no WhatsApp, sem chatbots.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA BAND ── -->
+  <div class="bg-brand py-16">
+    <div class="max-w-4xl mx-auto px-5 text-center">
+      <h2 class="font-['Bebas_Neue',Impact,sans-serif] text-4xl md:text-5xl text-black mb-4 tracking-wide">
+        NÃO ACHOU O QUE QUERIA?
+      </h2>
+      <p class="text-black/70 text-base mb-8 max-w-md mx-auto">
+        Fale direto com a nossa equipe. Temos muito mais modelos e podemos buscar o time que você torce!
+      </p>
+      <a href="https://wa.me/5511999999999?text=Olá!%20Estou%20procurando%20uma%20camiseta%20específica."
+         target="_blank"
+         class="inline-flex items-center gap-2 bg-black text-brand font-bold text-base px-8 py-4 rounded-full hover:bg-gray-900 transition-colors">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+        Pedir pelo WhatsApp agora
+      </a>
+    </div>
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <footer class="bg-[#080808] border-t border-white/[0.06] py-14">
+    <div class="max-w-7xl mx-auto px-5">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+
+        <div>
+          <span class="font-['Bebas_Neue',Impact,sans-serif] text-2xl tracking-wider text-white">
+            ELEVEN<span class="text-brand">.</span>
+          </span>
+          <p class="text-gray-600 text-sm mt-3 leading-relaxed max-w-xs">
+            A sua loja de camisetas de time com qualidade e atendimento que fazem diferença.
+          </p>
+          <a href="https://wa.me/5511999999999" target="_blank"
+             class="mt-5 inline-flex items-center gap-2 bg-brand text-black font-bold text-sm px-4 py-2 rounded-full hover:bg-[#20c55e] transition-colors">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+            (11) 99999-9999
+          </a>
+        </div>
+
+        <div>
+          <h4 class="text-white text-sm font-semibold mb-5 uppercase tracking-wider">Navegação</h4>
+          <ul class="space-y-3 list-none p-0 m-0">
+            <li><a href="#catalogo"  class="text-gray-500 text-sm hover:text-brand transition-colors no-underline">Catálogo</a></li>
+            <li><a href="#destaques" class="text-gray-500 text-sm hover:text-brand transition-colors no-underline">Destaques</a></li>
+            <li><a href="#sobre"     class="text-gray-500 text-sm hover:text-brand transition-colors no-underline">Quem somos</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-white text-sm font-semibold mb-5 uppercase tracking-wider">Atendimento</h4>
+          <ul class="space-y-3 list-none p-0 m-0">
+            <li><a href="#" class="text-gray-500 text-sm hover:text-brand transition-colors no-underline">Política de trocas</a></li>
+            <li><a href="#" class="text-gray-500 text-sm hover:text-brand transition-colors no-underline">Formas de pagamento</a></li>
+            <li><a href="https://wa.me/5511999999999" target="_blank" class="text-gray-500 text-sm hover:text-brand transition-colors no-underline">WhatsApp</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <hr class="border-none h-px bg-white/[0.06] mb-8" />
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-3">
+        <p class="text-gray-700 text-xs">&copy; 2026 Eleven Store. Todos os direitos reservados.</p>
+        <p class="text-gray-700 text-xs">Feito com ❤️ para os apaixonados por futebol</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ── JS — ordem importa! ── -->
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/cart.js"></script>
+  <script src="assets/js/whatsapp.js"></script>
+  <script src="assets/js/render.js"></script>
+  <script src="assets/js/filters.js"></script>
+  <script src="assets/js/main.js"></script>
+
+</body>
+</html>
