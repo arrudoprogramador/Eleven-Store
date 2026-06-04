@@ -1,7 +1,7 @@
 # Eleven Store
 
 <p align="center">
-  <img src="./assets/images/banner.png" alt="Eleven Store Banner">
+  <img src="./assets/readme/banner.png" alt="Eleven Store Banner">
 </p>
 
 <p align="center">
@@ -29,7 +29,7 @@
 
 ---
 
-## 💬 Integração com WhatsApp
+## Integração com WhatsApp
 Os pedidos são enviados diretamente para o WhatsApp da loja contendo:
 - Produtos selecionados
 - Quantidade de cada item
@@ -43,6 +43,6 @@ A Eleven Store foi desenvolvida para proporcionar uma forma simples, rápida e m
 O projeto foi criado com foco em experiência do usuário, responsividade e simplicidade na realização de pedidos.
 
 
-## 📄 Direitos Autorais
+## Direitos Autorais
 © 2026 Eleven Store. Todos os direitos reservados.
 Este projeto é proprietário e não pode ser copiado, distribuído ou utilizado sem autorização prévia.
