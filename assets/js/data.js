@@ -1,5 +1,5 @@
 
-const NUMERO_WA = '5511999999999'; // DDI + DDD + número, sem espaços
+const NUMERO_WA = '5511968294780'; // DDI + DDD + número, sem espaços
 
 const CATEGORIAS = ['todos', 'nacional', 'europeu', 'retrô', 'seleção'];
 
