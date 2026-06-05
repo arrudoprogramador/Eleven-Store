@@ -12,6 +12,15 @@ function gerarLinkWhatsapp() {
  
 function sendToWhatsApp() {
   if (carrinho.length === 0) return;
-  window.open(gerarLinkWhatsapp(), '_blank');
+
+  const itens = carrinho.map(i => ({
+    nome: i.nome,
+    preco: i.preco,
+    quantidade: i.qtd,
+  }));
+
+  const subtotal = carrinho.reduce((s, i) => s + i.preco * i.qtd, 0);
+
+  Checkout.open(itens, subtotal);
 }
  
