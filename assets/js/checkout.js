@@ -714,7 +714,6 @@ const Checkout = (() => {
     _timerInterval   = null;
   };
 
-  // ── Fluxo PIX: exibir tela ───────────────────────────────────
   const exibirTelaPix = (pixData) => {
     pararIntervalos();
     document.getElementById('co-pix-gerando').style.display = 'none';
@@ -747,7 +746,6 @@ const Checkout = (() => {
     atualizarTimer();
     _timerInterval = setInterval(() => { segundos--; atualizarTimer(); }, 1000);
 
-    // Botão copiar
     document.getElementById('co-btn-copiar').onclick = () => {
       navigator.clipboard.writeText(pixData.qrCode).then(() => {
         const b = document.getElementById('co-btn-copiar');
@@ -757,29 +755,28 @@ const Checkout = (() => {
       });
     };
 
-    // Polling robusto — _pollingInterval declarado antes de usar dentro de verificarStatus
     const verificarStatus = async () => {
       try {
         const r = await fetch(`/api/webhook-pix?id=${pixData.paymentId}`);
-        if (!r.ok) return; // rede instável — tenta na próxima rodada
+        if (!r.ok) return;
         const d = await r.json();
 
         if (d.status === 'approved') {
           pararIntervalos();
-          limparPix();
-          limparSessao();
+          limparPix();                
+      
+          const statusDiv = document.getElementById('co-pix-status');
+          statusDiv.className = 'co-pix-status aprovado';
+          statusDiv.innerHTML = '✅ Pagamento confirmado! Redirecionando para o resumo...';
 
-          document.getElementById('co-pix-status').className = 'co-pix-status aprovado';
-          document.getElementById('co-pix-status').innerHTML = 'Pagamento confirmado! Abrindo WhatsApp...';
+          renderSummary();           
+          goTo(4);                    
 
-          if (typeof clearCart === 'function') clearCart();
-
-          const waBtn  = document.getElementById('co-pix-whatsapp-btn');
-          const phone  = (typeof NUMERO_WA !== 'undefined') ? NUMERO_WA : '5511916169179';
-          const waUrl  = `https://wa.me/${phone}?text=${encodeURIComponent(buildWhatsappMsg())}`;
-          waBtn.style.display = 'block';
-          waBtn.onclick = () => window.open(waUrl, '_blank');
-          setTimeout(() => window.open(waUrl, '_blank'), 2000);
+          setTimeout(() => {
+            const phone = (typeof NUMERO_WA !== 'undefined') ? NUMERO_WA : '5511916169179';
+            const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(buildWhatsappMsg())}`;
+            window.open(waUrl, '_blank');
+          }, 2000);
         }
 
         if (d.status === 'rejected' || d.status === 'cancelled') {
