@@ -11,23 +11,27 @@ function salvarCarrinho() {
 }
 
 /* ── Ações ── */
-function adicionarAoCarrinho(id) {
+function adicionarAoCarrinho(id, tamanho = null) {
   const prod = produtos.find(p => p.id === id);
   if (!prod || !prod.disponivel) return;
 
-  const existente = carrinho.find(i => i.id === id);
+  // Chave única por produto + tamanho (mesmo produto em tamanhos diferentes = itens separados)
+  const chave = tamanho ? `${id}-${tamanho}` : `${id}`;
+  const existente = carrinho.find(i => i.chave === chave);
+
   if (existente) {
     existente.qtd++;
   } else {
-    carrinho.push({ ...prod, qtd: 1 });
+    carrinho.push({ ...prod, qtd: 1, tamanho, chave });
   }
 
   salvarCarrinho();
   renderCarrinho();
+  openCart();
 }
 
-function removerDoCarrinho(id) {
-  carrinho = carrinho.filter(i => i.id !== id);
+function removerDoCarrinho(chave) {
+  carrinho = carrinho.filter(i => i.chave !== chave);
   salvarCarrinho();
   renderCarrinho();
 }
@@ -53,16 +57,16 @@ function closeCart() {
 
 /* ── Render do carrinho ── */
 function renderCarrinho() {
-  const list      = document.getElementById('cart-items');
-  const empty     = document.getElementById('cart-empty');
-  const badge     = document.getElementById('cart-badge');
+  const list       = document.getElementById('cart-items');
+  const empty      = document.getElementById('cart-empty');
+  const badge      = document.getElementById('cart-badge');
   const subtotalEl = document.getElementById('cart-subtotal');
 
   const qtdTotal = carrinho.reduce((s, i) => s + i.qtd, 0);
   const total    = carrinho.reduce((s, i) => s + i.preco * i.qtd, 0);
 
-  // Badge
   subtotalEl.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+
   if (qtdTotal > 0) {
     badge.textContent = qtdTotal;
     badge.classList.remove('hidden');
@@ -72,7 +76,6 @@ function renderCarrinho() {
     badge.classList.remove('flex');
   }
 
-  // Limpa itens anteriores
   list.querySelectorAll('.cart-item').forEach(el => el.remove());
 
   if (carrinho.length === 0) {
@@ -93,12 +96,13 @@ function renderCarrinho() {
       </div>
       <div class="flex-1 min-w-0">
         <p class="text-white text-sm font-medium truncate">${item.nome}</p>
+        ${item.tamanho ? `<p class="text-gray-500 text-xs mt-0.5">Tamanho: <span class="text-gray-300 font-semibold">${item.tamanho}</span></p>` : ''}
         <p class="text-brand text-xs font-semibold mt-0.5">
           R$ ${item.preco.toFixed(2).replace('.', ',')} × ${item.qtd}
         </p>
       </div>
       <button
-        onclick="removerDoCarrinho(${item.id})"
+        onclick="removerDoCarrinho('${item.chave}')"
         class="w-7 h-7 rounded-full flex items-center justify-center text-gray-600 hover:text-red-400 hover:bg-red-400/10 transition-colors text-base"
         aria-label="Remover ${item.nome}">&times;</button>
     `;

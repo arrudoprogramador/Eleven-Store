@@ -1,9 +1,3 @@
-// ============================================================
-// assets/js/render.js — criação de HTML e renderização dos grids
-// Depende de: data.js (produtos), cart.js (adicionarAoCarrinho)
-// ============================================================
-
-/* ── Placeholder quando o produto não tem imagem ── */
 function cardPlaceholder() {
   return `
     <div class="aspect-[3/4] w-full bg-gradient-to-br from-[#1a1a1a] to-[#222] flex items-center justify-center">
@@ -17,8 +11,82 @@ function cardPlaceholder() {
     </div>`;
 }
 
+/* ── Gera HTML dos botões de tamanho ── */
+function tamanhosBtnsHTML(produto) {
+  if (!produto.tamanhos) return '';
+
+  const btns = Object.entries(produto.tamanhos).map(([tam, disponivel]) => {
+    if (!disponivel) {
+      // Esgotado: riscado, não clicável
+      return `
+        <button
+          disabled
+          class="size-btn relative w-9 h-9 rounded-lg text-xs font-bold
+                 border border-white/[0.06] text-gray-600 cursor-not-allowed
+                 overflow-hidden select-none"
+          title="${tam} — Esgotado">
+          ${tam}
+          <span class="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <span class="absolute w-[120%] h-px bg-white/20 rotate-[-35deg]"></span>
+          </span>
+        </button>`;
+    }
+    // Disponível: clicável
+    return `
+      <button
+        data-tam="${tam}"
+        data-id="${produto.id}"
+        onclick="selecionarTamanho(this)"
+        class="size-btn w-9 h-9 rounded-lg text-xs font-bold
+               border border-white/[0.12] text-gray-300
+               hover:border-brand hover:text-brand
+               transition-all duration-150 select-none"
+        title="${tam}">
+        ${tam}
+      </button>`;
+  }).join('');
+
+  return `
+    <div class="mb-3">
+      <div class="flex items-center justify-between mb-1.5">
+        <span class="text-[.65rem] text-gray-600 uppercase tracking-wider">Tamanho</span>
+        <span class="size-hint text-[.65rem] text-gray-600" id="hint-${produto.id}">Selecione</span>
+      </div>
+      <div class="flex gap-1.5" id="tamanhos-${produto.id}">
+        ${btns}
+      </div>
+    </div>`;
+}
+
+/* ── Seleciona tamanho — chamado pelo onclick dos botões ── */
+function selecionarTamanho(btn) {
+  const id = btn.dataset.id;
+
+  // Remove seleção anterior no mesmo card
+  document.querySelectorAll(`#tamanhos-${id} .size-btn`).forEach(b => {
+    b.classList.remove('!border-brand', '!text-brand', 'bg-brand/10');
+  });
+
+  // Marca o clicado
+  btn.classList.add('!border-brand', '!text-brand', 'bg-brand/10');
+
+  // Atualiza hint
+  const hint = document.getElementById(`hint-${id}`);
+  if (hint) hint.textContent = btn.dataset.tam;
+
+  // Habilita o botão de adicionar ao carrinho
+  const addBtn = document.getElementById(`add-btn-${id}`);
+  if (addBtn) {
+    addBtn.disabled = false;
+    addBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+    addBtn.classList.add('hover:bg-[#20c55e]', 'active:scale-95');
+  }
+}
+
 /* ── Cria um card de produto ── */
 function criarCard(produto) {
+  const temTamanhos = produto.tamanhos && Object.values(produto.tamanhos).some(v => v);
+
   // Imagem ou placeholder
   const imgHTML = produto.imagem
     ? `<img
@@ -36,10 +104,16 @@ function criarCard(produto) {
       : '';
 
   // Botão de ação
+  // Se tem tamanhos, começa desabilitado até o usuário selecionar um
   const btnHTML = produto.disponivel
     ? `<button
-         onclick="adicionarAoCarrinho(${produto.id})"
-         class="flex-1 flex items-center justify-center gap-1.5 bg-brand text-black font-bold text-xs py-2.5 rounded-full hover:bg-[#20c55e] active:scale-95 transition-all"
+         id="add-btn-${produto.id}"
+         onclick="adicionarAoCarrinhoComTamanho(${produto.id})"
+         ${temTamanhos ? 'disabled' : ''}
+         class="flex-1 flex items-center justify-center gap-1.5
+                bg-brand text-black font-bold text-xs py-2.5 rounded-full
+                transition-all
+                ${temTamanhos ? 'opacity-40 cursor-not-allowed' : 'hover:bg-[#20c55e] active:scale-95'}"
          aria-label="Adicionar ${produto.nome} ao carrinho">
          Adicionar ao carrinho
        </button>`
@@ -64,11 +138,28 @@ function criarCard(produto) {
       <p class="text-xs text-gray-600 uppercase tracking-wider mb-1">${produto.categoria}</p>
       <h3 class="text-white font-semibold text-sm leading-tight mb-1">${produto.nome}</h3>
       <p class="text-brand font-bold text-base mb-3">R$ ${produto.preco.toFixed(2).replace('.', ',')}</p>
+      ${tamanhosBtnsHTML(produto)}
       <div class="flex gap-2">${btnHTML}</div>
     </div>
   `;
 
   return article;
+}
+
+/* ── Adiciona ao carrinho com tamanho selecionado ── */
+function adicionarAoCarrinhoComTamanho(id) {
+  const produto = produtos.find(p => p.id === id);
+  if (!produto || !produto.disponivel) return;
+
+  // Descobre tamanho selecionado
+  const tamBtn = document.querySelector(`#tamanhos-${id} .size-btn.\\!border-brand`);
+  const tamanho = tamBtn ? tamBtn.dataset.tam : null;
+
+  // Se tem tamanhos configurados mas nenhum foi selecionado, ignora
+  if (produto.tamanhos && !tamanho) return;
+
+  // Chama adicionarAoCarrinho do cart.js passando tamanho
+  adicionarAoCarrinho(id, tamanho);
 }
 
 /* ── Renderiza seção de destaques ── */
