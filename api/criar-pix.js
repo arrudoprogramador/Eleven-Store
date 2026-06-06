@@ -1,4 +1,13 @@
-export default async function handler(req, res) {
+// ============================================================
+// api/criar-pix.js — Vercel Serverless Function
+// Cria uma cobrança PIX no Mercado Pago e retorna QR Code
+//
+// Env vars necessárias (Vercel → Settings → Environment Variables):
+//   MP_ACCESS_TOKEN → token do Mercado Pago (sandbox ou produção)
+//   BASE_URL        → URL pública do seu projeto (ex: https://elevenstore.vercel.app)
+// ============================================================
+
+module.exports = async function handler(req, res) {
 
   // ── CORS ─────────────────────────────────────────────────────
   res.setHeader('Access-Control-Allow-Origin', process.env.BASE_URL || '*');
@@ -21,7 +30,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ erro: 'Campos obrigatórios ausentes: nome, email, total' });
   }
   if (pagamento !== 'pix') {
-    // Cartão não usa esse endpoint
+    // Cartão e dinheiro não usam esse endpoint
     return res.status(400).json({ erro: 'Esse endpoint é exclusivo para PIX' });
   }
 
@@ -41,11 +50,14 @@ export default async function handler(req, res) {
       last_name:  nome.split(' ').slice(1).join(' ') || '-',
     },
     external_reference: pedidoId,
-    // Webhook: Mercado Pago envia POST aqui quando o pagamento mudar de status
-    notification_url: `${process.env.BASE_URL}/api/webhook-pix`,
+    // Webhook: só inclui quando BASE_URL for pública (https)
+    // Em localhost o MP rejeita — o polling do frontend já cobre a confirmação
+    ...(process.env.BASE_URL?.startsWith('https://') && {
+      notification_url: `${process.env.BASE_URL}/api/webhook-pix`,
+    }),
     // PIX expira em 30 minutos
     date_of_expiration: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
-    
+    // Metadados extras (aparecem no painel do MP)
     metadata: {
       pedido_id:  pedidoId,
       itens:      JSON.stringify(itens || []),
