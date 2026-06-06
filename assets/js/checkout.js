@@ -17,7 +17,7 @@ const Checkout = (() => {
     numero: '',
     complemento: '',
     frete: null,       // { tipo, valor, prazo }
-    pagamento: null,   // 'pix' | 'cartao' 
+    pagamento: null,   // 'pix' | 'cartao'
     cartItems: [],
     subtotal: 0,
   };
@@ -72,16 +72,13 @@ const Checkout = (() => {
     const prefix = parseInt(cep.slice(0, 2));
     if (prefix >= 1 && prefix <= 19)
       return [
-        { tipo: 'PAC',   label: 'PAC — Correios',   valor: 12.90, prazo: '5-7 dias úteis' },
         { tipo: 'SEDEX', label: 'SEDEX — Correios', valor: 24.90, prazo: '1-2 dias úteis' },
       ];
     if (prefix >= 20 && prefix <= 28)
       return [
-        { tipo: 'PAC',   label: 'PAC — Correios',   valor: 18.90, prazo: '6-8 dias úteis' },
         { tipo: 'SEDEX', label: 'SEDEX — Correios', valor: 32.90, prazo: '2-3 dias úteis' },
       ];
     return [
-      { tipo: 'PAC',   label: 'PAC — Correios',   valor: 22.90, prazo: '8-12 dias úteis' },
       { tipo: 'SEDEX', label: 'SEDEX — Correios', valor: 38.90, prazo: '3-5 dias úteis' },
     ];
   };
@@ -445,6 +442,102 @@ const Checkout = (() => {
         .co-row.col2, .co-row.col3 { grid-template-columns: 1fr; }
         .co-pay-opts { grid-template-columns: repeat(3, 1fr); }
       }
+
+      /* ── Tela PIX ── */
+      .co-pix-screen {
+        text-align: center; padding: .5rem 0 1rem;
+      }
+      .co-pix-screen .co-pix-title {
+        font-size: 1rem; font-weight: 700; margin-bottom: .25rem;
+      }
+      .co-pix-screen .co-pix-subtitle {
+        font-size: .8rem; color: #666; margin-bottom: 1.25rem;
+      }
+      .co-qr-wrap {
+        display: inline-flex; align-items: center; justify-content: center;
+        background: #fff; border-radius: .9rem; padding: .75rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 0 0 1px #2a2a2a, 0 8px 32px rgba(0,0,0,.4);
+      }
+      .co-qr-wrap img { display: block; width: 180px; height: 180px; border-radius: .4rem; }
+
+      .co-pix-timer {
+        display: inline-flex; align-items: center; gap: .4rem;
+        background: #1a1a1a; border: 1px solid #2a2a2a;
+        border-radius: 2rem; padding: .35rem .85rem;
+        font-size: .8rem; color: #aaa; margin-bottom: 1.25rem;
+      }
+      .co-pix-timer .timer-dot {
+        width: 7px; height: 7px; border-radius: 50%;
+        background: #22c55e;
+        animation: pulse-dot 1.4s ease-in-out infinite;
+      }
+      .co-pix-timer.expirando { border-color: #7f1d1d; color: #f87171; }
+      .co-pix-timer.expirando .timer-dot { background: #ef4444; }
+      @keyframes pulse-dot {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50%       { opacity: .4; transform: scale(.7); }
+      }
+
+      .co-copia-cola-wrap { margin-bottom: 1rem; }
+      .co-copia-cola-wrap label {
+        display: block; font-size: .72rem; color: #555;
+        text-transform: uppercase; letter-spacing: .5px; margin-bottom: .4rem;
+      }
+      .co-copia-cola-box {
+        display: flex; gap: .5rem;
+      }
+      .co-copia-cola-box input {
+        flex: 1; background: #111; border: 1.5px solid #2a2a2a;
+        border-radius: .6rem; color: #888; padding: .6rem .8rem;
+        font-size: .72rem; font-family: monospace; outline: none;
+        cursor: default;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .co-btn-copiar {
+        background: #1e1e1e; border: 1.5px solid #2a2a2a;
+        border-radius: .6rem; color: #aaa;
+        padding: .6rem .9rem; cursor: pointer;
+        font-size: .8rem; font-weight: 600;
+        white-space: nowrap; transition: all .2s;
+      }
+      .co-btn-copiar:hover { background: #252525; color: #fff; }
+      .co-btn-copiar.copiado { border-color: #22c55e; color: #22c55e; }
+
+      .co-pix-status {
+        padding: .85rem 1rem; border-radius: .7rem;
+        font-size: .82rem; font-weight: 600;
+        margin-bottom: 1rem; display: none;
+      }
+      .co-pix-status.aguardando {
+        display: flex; align-items: center; gap: .6rem;
+        background: #111; border: 1px solid #222; color: #666;
+      }
+      .co-pix-status.aprovado {
+        display: flex; align-items: center; gap: .6rem;
+        background: #0d1f12; border: 1px solid #166534; color: #4ade80;
+        animation: co-fadein .3s ease;
+      }
+      .co-pix-status.erro {
+        display: block;
+        background: #1a0a0a; border: 1px solid #7f1d1d; color: #f87171;
+      }
+      .co-pix-status .status-spinner {
+        width: 16px; height: 16px; border: 2px solid #333;
+        border-top-color: #555; border-radius: 50%;
+        animation: spin .8s linear infinite; flex-shrink: 0;
+      }
+
+      .co-pix-gerando {
+        display: flex; flex-direction: column;
+        align-items: center; gap: 1rem;
+        padding: 2rem 1rem; color: #555; font-size: .85rem;
+      }
+      .co-pix-gerando .co-spinner-lg {
+        width: 40px; height: 40px;
+        border: 3px solid #1e1e1e; border-top-color: #22c55e;
+        border-radius: 50%; animation: spin .8s linear infinite;
+      }
     `;
     document.head.appendChild(style);
   };
@@ -458,7 +551,7 @@ const Checkout = (() => {
 
         <!-- Cabeçalho -->
         <div class="co-header">
-          <h2>Finalizar Pedido</h2>
+          <h2>🛒 Finalizar Pedido</h2>
           <button class="co-close" id="co-close-btn" title="Fechar">✕</button>
         </div>
 
@@ -554,12 +647,12 @@ const Checkout = (() => {
             </div>
             <div class="co-error" id="err-pagamento"></div>
             <div class="co-pix-info" id="co-pix-info">
-              <strong>PIX — Aprovação instantânea!</strong><br/>
+               <strong>PIX — Aprovação instantânea!</strong><br/>
               Após confirmar o pedido, você receberá um <strong>QR Code</strong> e o código
               <strong>Copia e Cola</strong>. O pedido é liberado automaticamente após o pagamento.
             </div>
             <div class="co-pix-info" id="co-cartao-info" style="display:none; background:#0f1523; border-color:#1e3a5f; color:#93c5fd;">
-              <strong>Cartão de crédito/débito</strong><br/>
+               <strong>Cartão de crédito/débito</strong><br/>
               Você será direcionado para o checkout seguro do <strong>Mercado Pago</strong>
               para inserir os dados do cartão.
             </div>
@@ -575,7 +668,7 @@ const Checkout = (() => {
             <p class="co-section-title">Resumo do Pedido</p>
 
             <!-- Info grid -->
-            <div class="co-info-grid" id="co-info-grid"></div>sandbox.melhorenvio.com.br
+            <div class="co-info-grid" id="co-info-grid"></div>
 
             <!-- Itens -->
             <div class="co-summary-box">
@@ -593,6 +686,64 @@ const Checkout = (() => {
 
         </div><!-- /co-body -->
       </div><!-- /modal -->
+
+      <!-- STEP 5: PIX — fora do co-body para ocupar toda a largura -->
+      <div id="co-step-pix" style="display:none; padding: 1.5rem;">
+
+        <!-- Estado: gerando QR Code -->
+        <div class="co-pix-gerando" id="co-pix-gerando">
+          <div class="co-spinner-lg"></div>
+          Gerando QR Code PIX...
+        </div>
+
+        <!-- Estado: QR Code pronto -->
+        <div id="co-pix-pronto" style="display:none;">
+          <div class="co-pix-screen">
+            <p class="co-pix-title">Pague com PIX</p>
+            <p class="co-pix-subtitle">Escaneie o QR Code ou copie o código abaixo</p>
+
+            <!-- QR Code -->
+            <div class="co-qr-wrap">
+              <img id="co-qr-img" src="" alt="QR Code PIX"/>
+            </div>
+
+            <!-- Timer de expiração -->
+            <div class="co-pix-timer" id="co-pix-timer">
+              <div class="timer-dot"></div>
+              <span id="co-pix-timer-txt">Expira em 30:00</span>
+            </div>
+
+            <!-- Copia e Cola -->
+            <div class="co-copia-cola-wrap">
+              <label>PIX Copia e Cola</label>
+              <div class="co-copia-cola-box">
+                <input type="text" id="co-pix-codigo" readonly/>
+                <button class="co-btn-copiar" id="co-btn-copiar">Copiar</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Status do pagamento (polling) -->
+          <div class="co-pix-status aguardando" id="co-pix-status">
+            <div class="status-spinner"></div>
+            Aguardando confirmação do pagamento...
+          </div>
+
+          <!-- Botão WhatsApp (aparece após aprovação) -->
+          <button class="co-btn co-btn-whatsapp" id="co-pix-whatsapp-btn" style="display:none; width:100%;">
+            Pedido confirmado — Abrir WhatsApp
+          </button>
+
+          <p style="text-align:center; font-size:.72rem; color:#444; margin-top:1rem;">
+            Após o pagamento, a confirmação é automática.<br/>
+            Dúvidas? Entre em contato pelo WhatsApp da loja.
+          </p>
+        </div>
+
+        <!-- Estado: erro ao gerar PIX -->
+        <div class="co-pix-status erro" id="co-pix-erro" style="display:block; margin-bottom:1rem;"></div>
+
+      </div><!-- /co-step-pix -->
     `;
     return el;
   };
@@ -695,7 +846,7 @@ const Checkout = (() => {
   // ── Renderizar resumo ────────────────────────────────────────
   const renderSummary = () => {
     // Info grid
-    const payLabel = { pix: '⚡ PIX', cartao: '💳 Cartão' };
+    const payLabel = { pix: 'PIX', cartao: 'Cartão'};
     document.getElementById('co-info-grid').innerHTML = `
       <div class="co-info-cell"><div class="lbl">Cliente</div><div class="val">${state.nome}</div></div>
       <div class="co-info-cell"><div class="lbl">WhatsApp</div><div class="val">${mask.tel(state.telefone)}</div></div>
@@ -729,7 +880,7 @@ const Checkout = (() => {
   // (Fase 2+: substituir por chamada ao backend para PIX)
   const buildWhatsappMsg = () => {
     const total = state.subtotal + state.frete.valor;
-    const payLabel = { pix: 'PIX', cartao: 'Cartão de Crédito/Débito'};
+    const payLabel = { pix: 'PIX', cartao: 'Cartão de Crédito/Débito' };
     const itens = state.cartItems.map(item => {
       const qty = item.quantidade || item.qty || item.quantity || 1;
       const preco = item.preco || item.price || 0;
@@ -748,7 +899,7 @@ const Checkout = (() => {
       `*Subtotal:* ${fmt(state.subtotal)}\n` +
       `*Frete (${state.frete.label}):* ${fmt(state.frete.valor)}\n` +
       `*TOTAL: ${fmt(total)}*\n\n` +
-      `*💳 Pagamento:* ${payLabel[state.pagamento]}\n\n` +
+      `*Pagamento:* ${payLabel[state.pagamento]}\n\n` +
       `_Pedido realizado via site_`;
   };
 
@@ -875,16 +1026,155 @@ const Checkout = (() => {
     document.getElementById('co-back-4').addEventListener('click', () => goTo(3));
 
     // Confirmar pedido
-    document.getElementById('co-confirm-btn').addEventListener('click', () => {
-      // TODO Fase 3+: chamar backend para gerar PIX
-      // Por ora, abre WhatsApp diretamente
-      const msg = buildWhatsappMsg();
-      const phone = (typeof NUMERO_WA !== 'undefined') ? NUMERO_WA : '5511999999999';
-      const url = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
-      window.open(url, '_blank');
-      // Não fecha o modal automaticamente — usuário fecha se quiser
-      // Limpa apenas o carrinho (dados pessoais permanecem salvos)
-      if (typeof clearCart === 'function') clearCart();
+    document.getElementById('co-confirm-btn').addEventListener('click', async () => {
+      const btn = document.getElementById('co-confirm-btn');
+
+      if (state.pagamento === 'pix') {
+        // ── Fluxo PIX ─────────────────────────────────────────
+        btn.disabled = true;
+        btn.textContent = 'Gerando PIX...';
+
+        // Esconde steps e corpo, mostra tela PIX
+        document.getElementById('co-steps').style.display = 'none';
+        document.getElementById('co-step-4').style.display = 'none';
+        const pixScreen = document.getElementById('co-step-pix');
+        pixScreen.style.display = 'block';
+
+        const total = state.subtotal + state.frete.valor;
+
+        try {
+          const res = await fetch('/api/criar-pix', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              pedido: {
+                nome:      state.nome,
+                email:     state.email,
+                telefone:  state.telefone,
+                total,
+                pagamento: 'pix',
+                itens:     state.cartItems,
+                endereco:  { ...state.endereco, numero: state.numero, complemento: state.complemento },
+                frete:     state.frete,
+              },
+            }),
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) throw new Error(data.erro || 'Erro ao gerar PIX');
+
+          // ── Exibe QR Code ──────────────────────────────────
+          document.getElementById('co-pix-gerando').style.display = 'none';
+          document.getElementById('co-pix-pronto').style.display  = 'block';
+
+          // QR Code (imagem base64)
+          const qrImg = document.getElementById('co-qr-img');
+          qrImg.src = `data:image/png;base64,${data.qrCodeBase64}`;
+
+          // Código copia e cola
+          document.getElementById('co-pix-codigo').value = data.qrCode;
+
+          // ── Timer de expiração (30 min) ────────────────────
+          let segundos = 30 * 60;
+          const timerEl  = document.getElementById('co-pix-timer');
+          const timerTxt = document.getElementById('co-pix-timer-txt');
+          const timerInterval = setInterval(() => {
+            segundos--;
+            const m = String(Math.floor(segundos / 60)).padStart(2, '0');
+            const s = String(segundos % 60).padStart(2, '0');
+            timerTxt.textContent = `Expira em ${m}:${s}`;
+            if (segundos <= 300) timerEl.classList.add('expirando');  // últimos 5 min
+            if (segundos <= 0) {
+              clearInterval(timerInterval);
+              timerTxt.textContent = 'PIX expirado';
+              clearInterval(pollingInterval);
+              document.getElementById('co-pix-status').className = 'co-pix-status erro';
+              document.getElementById('co-pix-status').innerHTML = 'O PIX expirou. Feche e tente novamente.';
+            }
+          }, 1000);
+
+          // ── Botão copiar ───────────────────────────────────
+          document.getElementById('co-btn-copiar').addEventListener('click', () => {
+            navigator.clipboard.writeText(data.qrCode).then(() => {
+              const btn = document.getElementById('co-btn-copiar');
+              btn.textContent = '✓ Copiado!';
+              btn.classList.add('copiado');
+              setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copiado'); }, 2500);
+            });
+          });
+
+          // ── Polling de status a cada 3s ────────────────────
+          const paymentId = data.paymentId;
+          let pollingInterval;
+
+          const verificarStatus = async () => {
+            try {
+              const r = await fetch(`/api/webhook-pix?id=${paymentId}`);
+              const d = await r.json();
+
+              if (d.status === 'approved') {
+                clearInterval(pollingInterval);
+                clearInterval(timerInterval);
+
+                // Atualiza UI para aprovado
+                document.getElementById('co-pix-status').className = 'co-pix-status aprovado';
+                document.getElementById('co-pix-status').innerHTML = 'Pagamento confirmado! Abrindo WhatsApp...';
+
+                // Limpa carrinho
+                if (typeof clearCart === 'function') clearCart();
+
+                // Exibe botão WhatsApp e dispara automaticamente após 2s
+                const waBtn = document.getElementById('co-pix-whatsapp-btn');
+                waBtn.style.display = 'block';
+
+                const phone = (typeof NUMERO_WA !== 'undefined') ? NUMERO_WA : '5511916169179';
+                const msg   = buildWhatsappMsg();
+                const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+
+                waBtn.addEventListener('click', () => window.open(waUrl, '_blank'));
+                setTimeout(() => window.open(waUrl, '_blank'), 2000);
+              }
+
+              if (d.status === 'rejected' || d.status === 'cancelled') {
+                clearInterval(pollingInterval);
+                clearInterval(timerInterval);
+                document.getElementById('co-pix-status').className = 'co-pix-status erro';
+                document.getElementById('co-pix-status').innerHTML = 'Pagamento não aprovado. Feche e tente novamente.';
+              }
+
+            } catch (err) {
+              // Erro de rede no polling — ignora e tenta na próxima rodada
+              console.warn('[polling] Erro temporário:', err.message);
+            }
+          };
+
+          // Primeira verificação imediata, depois a cada 3s
+          verificarStatus();
+          pollingInterval = setInterval(verificarStatus, 3000);
+
+        } catch (err) {
+          // Erro ao gerar PIX — mostra mensagem e fallback
+          document.getElementById('co-pix-gerando').style.display = 'none';
+          const erroEl = document.getElementById('co-pix-erro');
+          erroEl.style.display = 'block';
+          erroEl.innerHTML = `
+            ⚠️ <strong>Não foi possível gerar o PIX.</strong><br/>
+            ${err.message}<br/><br/>
+            <button onclick="Checkout.close()" style="
+              margin-top:.5rem; background:#1e1e1e; border:1px solid #333;
+              color:#ccc; padding:.5rem 1rem; border-radius:.5rem; cursor:pointer;
+            ">Fechar e tentar novamente</button>
+          `;
+        }
+
+      } else {
+        // ── Fluxo Cartão  → WhatsApp direto ─────────
+        const msg   = buildWhatsappMsg();
+        const phone = (typeof NUMERO_WA !== 'undefined') ? NUMERO_WA : '5511916169179';
+        window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+        if (typeof clearCart === 'function') clearCart();
+      }
     });
   };
 

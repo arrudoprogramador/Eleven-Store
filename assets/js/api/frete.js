@@ -1,18 +1,3 @@
-// ============================================================
-// api/frete.js — Vercel Serverless Function
-// Proxy seguro para a API do Melhor Envio
-//
-// Por que esse arquivo existe?
-// A API do Melhor Envio bloqueia chamadas diretas do navegador
-// (CORS). Esse endpoint roda no servidor, faz a chamada com o
-// token secreto e devolve só o que o frontend precisa.
-//
-// Deploy: coloque na raiz do projeto e rode `vercel`
-// Env vars necessárias no painel da Vercel:
-//   ME_TOKEN   → seu token do Melhor Envio (sandbox ou produção)
-//   ME_CEP_ORIGEM → CEP do seu estoque/loja (somente números)
-// ============================================================
-
 export default async function handler(req, res) {
 
   const origem = req.headers.origin || '';
@@ -50,7 +35,7 @@ export default async function handler(req, res) {
   const payload = {
     from: { postal_code: CEP_ORIGEM },
     to:   { postal_code: cep_destino },
-    services: '1,2',          // PAC e SEDEX — adicione mais se quiser
+    services: '1',          // SEDEX — adicione mais se quiser
     options: {
       receipt:   false,       // aviso de recebimento
       own_hand:  false,       // mão própria
@@ -99,7 +84,6 @@ export default async function handler(req, res) {
 
   // ── Filtra e formata apenas serviços com preço válido ─────
   const LABELS = {
-    'PAC':        'PAC — Correios',
     'SEDEX':      'SEDEX — Correios',
     'SEDEX 10':   'SEDEX 10 — Correios',
     '.Package':   'Jadlog .Package',

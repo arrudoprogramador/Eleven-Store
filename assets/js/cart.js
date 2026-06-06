@@ -24,7 +24,6 @@ function adicionarAoCarrinho(id) {
 
   salvarCarrinho();
   renderCarrinho();
-  openCart();
 }
 
 function removerDoCarrinho(id) {

@@ -2,6 +2,7 @@
 const NUMERO_WA = '5511916169179'; // DDI + DDD + número, sem espaços
 
 const CATEGORIAS = ['todos', 'nacional', 'europeu', 'retrô', 'seleção'];
+const TAMANHOS = ['todos', 'P', 'M', 'G', 'GG'];
 
 const produtos = [
   {
